@@ -1,0 +1,7 @@
+1. pip install virtualenv
+2. python freeze
+3. virtualenv venv
+4. /venv/Scripts/deactivate.bat (activate virtual env)
+5. deactivate
+
+6. pip install Flask-RESTful
