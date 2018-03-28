@@ -13,12 +13,19 @@ items = []
 class Item(Resource):
 	#@app.route('/item/<string:name>')
 	def get(self, name):
-		for item in items:
-			if item['name'] == name:
-				return item
-			else: return { 'item':'' }, 404
+		# for item in items:
+		# 	if item['name'] == name:
+		# 		return item
+		# 	else: 
+		# 		return { 'item':'' }, 404
+		item = next(filter(lambda x: x['name'] == name, items),None)
+		return {'item': item}, 200 if item else 404
+
 
 	def post(self, name):
+		if next(filter(lambda x: x['name'] == name, items), None) is not None:
+			return {'message': 'The item is already esists.'} , 400
+
 		data = request.get_json(force=True) #if not proper header content type will cause error or if it's not json format
 		item = {'name': name, 'price': data['price']}
 		items.append(item)
