@@ -1,0 +1,10 @@
+#API testing tool
+
+URL: https://www.getpostman.com/apps
+
+1. Download app
+2. Sing up
+3. Create a folders
+4. Enter a request URL and select a HTTP verb
+5. Send a POST request through the Postman
+
