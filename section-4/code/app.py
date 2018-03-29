@@ -1,9 +1,16 @@
 from flask import Flask, request
 from flask_restful import Resource, Api
+from flask_jwt import JWT, jwt_required
+
+from security import authenticate, identity
 
 
 app = Flask(__name__)
+app.secret_key = 'ken'
 api = Api(app)
+
+
+jwt = JWT(app, authenticate, identity) # /auth
 
 #Create a in-memory database
 items = []
@@ -12,6 +19,7 @@ items = []
 #Define our resource
 class Item(Resource):
 	#@app.route('/item/<string:name>')
+	@jwt_required()
 	def get(self, name):
 		# for item in items:
 		# 	if item['name'] == name:
