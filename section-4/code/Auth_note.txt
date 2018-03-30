@@ -1,0 +1,52 @@
+1. Install required library flask-JWT
+2. JWT(json web token), encoding data (encrept )
+3. inorder to encrept and be吃ha able to understand what we encrept is we need a key
+
+
+JWT (https://auth0.com/docs/jwt)
+
+What is a JSON Web Token(JWT)?
+	1. Based on Web Standard (RFC7591)
+	2. Used to securely communicate JSON objects
+	3. Consist of a header, payload and signature
+	4. Self-contained
+
+	The JWT header:
+	The header is a JSON object usually consisting of the type(typ), which is JWT and the algorithim used for encrypting the JWT(alg)
+	{
+		"typ":"JWT",
+		"alg":"HS256"
+	}
+
+	The JWT payload:
+	The payload is a JSON object that consists of user-defined attributes (called public claims). Some attributes are defined in the standard 
+	(these are called reserved claims)
+	{
+		"iss": "http://myapi.com", #reserved claim
+		"user": "nodebotanist" # public claim
+	}
+
+	The JWT Signature 
+	The signature is the encoded header and payload, signed with a secret.
+	HMACSHA256(
+		base64UrlEncode(header) + "." + base64UrlEncode(payload), secret
+	)
+
+	The JWT signature
+	This accomplishes serveral tasks at once, including:
+		-> Proves the identity of the sender
+		-> Ensures the message has not changed
+
+	The JWT Token
+	A finished token looks like [encodeed header].[encoded payload].[signature]
+
+What's the advantage?
+	Because we are using JSON instead of XML
+	-> Compact
+	-> Easy to sign
+	-> Easy to parse
+
+How do I use JWTs in my API?
+
+
+RESTful API Authentication Basics: http://blog.restcase.com/restful-api-authentication-basics/
