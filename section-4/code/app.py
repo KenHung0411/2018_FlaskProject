@@ -5,18 +5,6 @@ from flask_jwt import JWT, jwt_required
 from security import authenticate, identity
 
 
-app = Flask(__name__)
-app.secret_key = 'ken'
-api = Api(app)
-
-# JWT creates a new endpoint, that endpoint is /auth , when we call /auth we send a username & password, and JWT send to authenticate fuction 
-# we can send it to the next request when we send JWT token what JWT does is calls the identity function, and it use JWT token to get user ID 
-
-jwt = JWT(app, authenticate, identity) # /auth  (object of a secret, authenticate, payload)
-
-#Create a in-memory database
-items = []
-
 
 #Define our resource
 class Item(Resource):
@@ -28,8 +16,7 @@ class Item(Resource):
 				required = True,
 				help = "This filed cannot be left blank!"
 			)
-	data = parser.parse_args()
-
+	
 	#@app.route('/item/<string:name>')
 	@jwt_required()
 	def get(self, name):
@@ -83,7 +70,7 @@ class Item(Resource):
 			items.append(item)
 		else:
 			#use entire payload, if payload had a name that will change entire row 
-			#item.update(data)
+			item.update(data)
 		return item
 
 
@@ -94,8 +81,24 @@ class ItemList(Resource):
 		return {'items':items}
 
 
-api.add_resource(Item, '/item/<string:name>') #http://127.0.0.1:8080/item/something ,compare this line with line 10
-api.add_resource(ItemList, '/items')
 
 
-app.run(port=8080, debug=True)
+if __name__ == "__main__":
+
+	app = Flask(__name__)
+	app.secret_key = 'ken'
+	api = Api(app)
+
+	# JWT creates a new endpoint, that endpoint is /auth , when we call /auth we send a username & password, and JWT send to authenticate fuction 
+	# we can send it to the next request when we send JWT token what JWT does is calls the identity function, and it use JWT token to get user ID 
+
+	jwt = JWT(app, authenticate, identity) # /auth  (object of a secret, authenticate, payload)
+
+	#Create a in-memory database
+	items = []
+
+
+
+	api.add_resource(Item, '/item/<string:name>') #http://127.0.0.1:8080/item/something ,compare this line with line 10
+	api.add_resource(ItemList, '/items')
+	app.run(port=8080, debug=True)
