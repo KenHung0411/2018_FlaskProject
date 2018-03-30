@@ -9,7 +9,7 @@ class User:
 		self.password = password
 
 	@classmethod
-	def find_by_username(cls, username)
+	def find_by_username(cls, username):
 		conn = sqlite3.connection('data.db')
 		cur = conn.cursor()
 
@@ -25,7 +25,7 @@ class User:
 		return user
 
 	@classmethod
-	def find_by_id(cls, username)
+	def find_by_id(cls, username):
 		conn = sqlite3.connection('data.db')
 		cur = conn.cursor()
 
@@ -40,10 +40,10 @@ class User:
 		connection.close()
 		return user
 
-
+  
 class UserRegister(Resource):
 
-	parser = reqparse.RequsetParser()
+	parser = reqparse.RequestParser()
 	parser.add_argument('username',
 			type = str,
 			required = True,
@@ -59,13 +59,15 @@ class UserRegister(Resource):
 	def post(self):
 
 		data = UserRegister.parser.parse_args()
-		print(data)
+		
+		if User.find_by_username(data['username']):
+			return {"message" : "A user with that username already exists"}, 400
 
 		connection = sqlite3.connect('data.db')
 		cursor = connection.cursor()
 
-		query =  "INSERT INTO users VALUES (?, ?)"
-		cursor.excute(query, (data['username'], data['password']))
+		query =  "INSERT INTO users VALUES (NULL,?, ?)"
+		cursor.execute(query, (data['username'], data['password']))
 
 		connection.commit()
 		connection.close()
