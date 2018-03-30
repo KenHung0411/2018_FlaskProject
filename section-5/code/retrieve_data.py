@@ -17,6 +17,7 @@ result = cur.execute(item_value)
 result = result.fetchall()
 print(result)
 
+
 conn.commit()
 
 conn.close()
