@@ -25,8 +25,9 @@ class User(Resource):
 			return {'result': 'No such user'},200
 
 class Item(Resource):
-
-	def sql_query (self, sql_syntax):
+	
+	@classmethod
+	def sql_query(cls, sql_syntax):
 		conn = sqlite3.connect('data.db')
 		cur = conn.cursor()
 		sql = sql_syntax
@@ -37,7 +38,7 @@ class Item(Resource):
 
 	def get(self, name):
 		sql = 'SELECT * FROM item WHERE name = "{}" '.format(name)
-		get_result = self.sql_query(sql)
+		get_result = Item.sql_query(sql)
 		return {"name": get_result[0][1], "price": get_result[0][2]}
 
 	def post(self, name):
