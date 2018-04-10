@@ -47,14 +47,36 @@ class Person(db.Model):
 	pets = db.relationship('Pet', backref='owner', lazy='dynamic') #bacref create a vitural column Pet class that references Person
 
 
+# class Pet(db.Model):
+# 	id =  db.Column(db.Integer, primary_key=True)
+# 	name = db.Column(db.String(20))
+# 	owner_id = db.Column(db.Integer, db.ForeignKey('person.id'))
+
+#SQLAlchemy migration (when you wants to amend schema no need to rebulid everything)
+
 class Pet(db.Model):
 	id =  db.Column(db.Integer, primary_key=True)
 	name = db.Column(db.String(20))
+	new = db.Column(db.String(20))
 	owner_id = db.Column(db.Integer, db.ForeignKey('person.id'))
 
+'''
+pip install flask-migrate
+'''
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
+migrate = Migrate(app, db)
+manager = Manager(app)
 
+manage.add_command('db', MigrateCommand)
 
+'''
+When ever the data schema is different...
+step1: python migrate_example.py db migrate
+step2: python migrate_example db upgrade
+'''
 
 if __name__ == '__main__':
+	#manager.run()
 	app.run(debug=True,port=8080)
