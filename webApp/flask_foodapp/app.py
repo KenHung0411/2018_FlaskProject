@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect , g #Just store on this whatever you want. For example a database connection or the user that is currently logged in
+from flask import Flask, render_template, request, redirect, url_for, g #Just store on this whatever you want. For example a database connection or the user that is currently logged in
 from flask_sqlalchemy import SQLAlchemy
 import sqlite3
 
@@ -30,18 +30,14 @@ class log_date(db.Model):
 		db.session.commit()
 
 	@classmethod
-	def query_data_row(cls, id):
-		result = cls.query.filter_by(id=id).first()
-		if result:
-			return 'The date of '+ str(result.id) +' is '+result.entry_date
-		else:
-			return 'This row is not exist...'
+	def query_data_row(cls, entry_date):
+		result = cls.query.filter_by(entry_date=entry_date).first()
+		return result
 
 	@classmethod
 	def show_all_rows(cls):
 		results = cls.query.all()
-		return 'Total rows count is: '+ str(len(results))
-
+		return results
 
 
 
@@ -63,12 +59,30 @@ class food(db.Model):
 	@classmethod
 	def show_all_rows(cls):
 		results = cls.query.all()
-		return 'Total rows count is: '+ str(len(results))
+		return results
+
+	@classmethod
+	def query_data_row(cls,food_name):
+		result = cls.query.filter_by(name=food_name).first()
+		return result
+
 
 class food_date(db.Model):
 	food_id = db.Column(db.Integer, primary_key=True)
-	log_date_id = db.Column(db.Integer, primary_key=True)
+	log_date_id = db.Column(db.Integer)
 
+	def insert_data_row(self):
+		db.session.add(self)
+		db.session.commit()
+
+	@classmethod
+	def select_food_in_date(cls, log_date_id):
+		result = cls.query.filter_by()
+
+	@classmethod
+	def show_all_rows(cls):
+		results = cls.query.all()
+		return results
 
 	def __repr__(self):
 		return 'food_date'
@@ -97,12 +111,20 @@ def close_db(error):
 
 
 
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def home():
-	return render_template('home.html')
+	date_list = log_date.show_all_rows()
+	if request.method == 'POST':
+		date = request.form['entry_date']
+		add_date = log_date(entry_date= date).insert_data_row()
+		return  redirect(url_for('home'))
+
+	return render_template('home.html', date_list=date_list)
+
 
 @app.route('/addfood', methods=['GET','POST'])
 def add_food():
+	viewAllfood = food().show_all_rows()
 	if request.method == 'POST':
 		name = request.form['food_name']
 		protein = request.form['protein']
@@ -110,14 +132,30 @@ def add_food():
 		fat = request.form['fat']
 		new_food = food(name=name,protein=protein,carbohydrates=carbohydrates,fat=fat)
 		new_food.insert_data_row()	
-		return '<h1> Food added!! </h1>'
+		return redirect(url_for('add_food'))
 
-	return render_template('add_food.html')
+	return render_template('add_food.html', foodlist=viewAllfood)
 
-@app.route('/day')
-def day():
-	return render_template('day.html')
- 
+
+@app.route('/day/<date>', methods=['GET','POST'])
+def day(date):
+	query_date = log_date.query_data_row(date)
+	foodlist = food.show_all_rows()
+	result =  food_date.show_all_rows()
+
+	if query_date:
+		return render_template('day.html',date=query_date, foodlist=foodlist )
+	else:
+		return 'Bad request 404'
+
+	if request.method == 'POST':
+		food_name = request.form['food']
+		food_id = food.query_data_row(food_name)
+
+		new_food_date = food_date(food_id=food_id ,log_date_id=query_date.entry_date)
+		new_food_date.insert_data_row()
+
+		return '<h1> row has been added !! </h1>'
 
 
 if __name__ == '__main__':
