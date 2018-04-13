@@ -137,14 +137,15 @@ def add_food():
 	return render_template('add_food.html', foodlist=viewAllfood)
 
 
-@app.route('/day/<date>', methods=['GET','POST'])
-def day(date):
-	query_date = log_date.query_data_row(date)
+@app.route('/day/<dd>', methods=['GET','POST'])
+def day(dd):
+	print(dd)
+	query_date = log_date.query_data_row(dd)
 	foodlist = food.show_all_rows()
 	result =  food_date.show_all_rows()
-
+	
 	if query_date:
-		return render_template('day.html',date=query_date, foodlist=foodlist )
+		return render_template('day.html',dd=query_date, foodlist=foodlist )
 	else:
 		return 'Bad request 404'
 
