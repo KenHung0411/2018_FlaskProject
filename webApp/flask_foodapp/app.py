@@ -139,7 +139,7 @@ def add_food():
 
 @app.route('/day/<dd>', methods=['GET','POST'])
 def day(dd):
-	print(dd)
+	
 	query_date = log_date.query_data_row(dd)
 	foodlist = food.show_all_rows()
 	result =  food_date.show_all_rows()
@@ -155,8 +155,8 @@ def day(dd):
 
 		new_food_date = food_date(food_id=food_id ,log_date_id=query_date.entry_date)
 		new_food_date.insert_data_row()
-
-		return '<h1> row has been added !! </h1>'
+		print('Test!!')
+		return 'row has been added !'
 
 
 if __name__ == '__main__':
