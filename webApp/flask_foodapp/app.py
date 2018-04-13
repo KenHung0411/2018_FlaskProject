@@ -143,20 +143,25 @@ def day(dd):
 	query_date = log_date.query_data_row(dd)
 	foodlist = food.show_all_rows()
 	result =  food_date.show_all_rows()
-	
+	query_date_id = query_date.id
+
+
+	if request.method == 'POST':
+		food_name = request.form['food']
+		food_id = food.query_data_row(food_name)	
+		food_id = food_id.id
+		query_date_id = query_date.id
+		new_food_date = food_date(food_id=food_id ,log_date_id= int(query_date_id))
+		new_food_date.insert_data_row()
+		
+		return 'row has been added !'
+
 	if query_date:
 		return render_template('day.html',dd=query_date, foodlist=foodlist )
 	else:
 		return 'Bad request 404'
 
-	if request.method == 'POST':
-		food_name = request.form['food']
-		food_id = food.query_data_row(food_name)
 
-		new_food_date = food_date(food_id=food_id ,log_date_id=query_date.entry_date)
-		new_food_date.insert_data_row()
-		print('Test!!')
-		return 'row has been added !'
 
 
 if __name__ == '__main__':
