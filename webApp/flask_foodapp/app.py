@@ -154,19 +154,14 @@ def day(dd):
 	food_list = food.show_all_rows()
 	result =  food_date.show_all_rows()
 	
-
 	if request.method == 'GET':
 		list_food_day = food_date.select_food_in_date(query_date.id)
-		day_food_list = []
-		if list_food_day:		
-			for i in list_food_day:
-				food_name = food.query_data_row_id(i.food_id)
-				day_food_list.append(food_name.name)
 
+		if list_food_day:		
+			day_food_list = [food.query_data_row_id(i.food_id).name for i in list_food_day]
 			return render_template('day.html',dd=query_date, foodlist=food_list, today_food = day_food_list)
 		else:
 			return render_template('day.html',dd=query_date, foodlist=food_list, today_food = [])
-
 	
 
 	if request.method == 'POST':
