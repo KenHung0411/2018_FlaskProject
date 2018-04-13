@@ -1,7 +1,8 @@
 from flask import Flask, render_template, request, redirect, url_for, g #Just store on this whatever you want. For example a database connection or the user that is currently logged in
 from flask_sqlalchemy import SQLAlchemy
 import sqlite3
-
+from flask_script import Manager
+from flask_migrate import Migrate, MigrateCommand
 
 app = Flask(__name__)
 '''
@@ -11,6 +12,10 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #tracking every modificatio
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///food_track.db'
 
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
+
+manager = Manager(app)
+manager.add_command('db', MigrateCommand)
 
 class log_date(db.Model):
 	id = db.Column(db.Integer, primary_key=True)
@@ -66,6 +71,11 @@ class food(db.Model):
 		result = cls.query.filter_by(name=food_name).first()
 		return result
 
+	@classmethod
+	def query_data_row_id(cls,id):
+		result = cls.query.filter_by(id=id).first()
+		return result
+
 
 class food_date(db.Model):
 	food_id = db.Column(db.Integer, primary_key=True)
@@ -76,9 +86,9 @@ class food_date(db.Model):
 		db.session.commit()
 
 	@classmethod
-	def select_food_in_date(cls, log_date_id):
-		result = cls.query.filter_by()
-
+	def select_food_in_date(cls, date_id):
+		result = cls.query.filter_by(log_date_id=date_id).all()
+		return result
 	@classmethod
 	def show_all_rows(cls):
 		results = cls.query.all()
@@ -141,29 +151,43 @@ def add_food():
 def day(dd):
 	
 	query_date = log_date.query_data_row(dd)
-	foodlist = food.show_all_rows()
+	food_list = food.show_all_rows()
 	result =  food_date.show_all_rows()
-	query_date_id = query_date.id
+	
 
+	if request.method == 'GET':
+		list_food_day = food_date.select_food_in_date(query_date.id)
+		day_food_list = []
+		if list_food_day:		
+			for i in list_food_day:
+				food_name = food.query_data_row_id(i.food_id)
+				day_food_list.append(food_name.name)
+
+			return render_template('day.html',dd=query_date, foodlist=food_list, today_food = day_food_list)
+		else:
+			return render_template('day.html',dd=query_date, foodlist=food_list, today_food = [])
+
+	
 
 	if request.method == 'POST':
 		food_name = request.form['food']
 		food_id = food.query_data_row(food_name)	
 		food_id = food_id.id
-		query_date_id = query_date.id
-		new_food_date = food_date(food_id=food_id ,log_date_id= int(query_date_id))
-		new_food_date.insert_data_row()
-		
-		return 'row has been added !'
+		query_date_id = log_date.query_data_row(dd).id
+		new_food_date = food_date(food_id=food_id ,log_date_id= query_date_id)
 
-	if query_date:
-		return render_template('day.html',dd=query_date, foodlist=foodlist )
-	else:
-		return 'Bad request 404'
+		new_food_date.insert_data_row()
+		return 'food added'
 
 
 
 
 if __name__ == '__main__':
+	#manager.run()
 	app.run(debug=True,port=8080)
+	'''
+	python app.py db init
+    python app.py db migrate
+    python app.py db upgrade
+	'''
 
