@@ -1,0 +1,123 @@
+Flask-Alchemy cheat sheet
+
+
+
+1. object.query.filter_by(condition).first()
+
+2. Insert data 
+   	1. Create a instance and set the value for attribute
+   	2. db.session.add(instance)
+   	3. db.session.commit()
+
+3. Upsert data(updating requires you have actual access of oject represent the real database)
+	1. Use object.query.filter_by(condition).first() to find data
+	2. Use the instance u want to update 
+	3. update the value (attribute)
+	4. db.session.commit()
+
+4. object.query.filter(object.columName == Value).first()
+
+5. object.query.all (return a list) 
+
+6. a = object.query.filter(object.columName != Value).all()
+
+7. like_query = object.query.filter(object.columName.like(%nth%)).all()
+
+8. q = object.query.filter(object.columName.in_([value1, value2]).all()
+
+9. nq = object.query.filter(~object.columName.in_([value1, value2]).all()
+
+10. q = object.query.filter(object.columName == None).all() , q = object.query.filter(object.columName != None).all()
+
+11. q = object.query.filter(object.columName == Value).filter(object.columName == Value).all()
+
+11. q = object.query.filter(object.columName == Value, object.columName == Value).all()
+
+11. q = object.query.filter(db.and_(object.columName == Value, object.columName == Value)).all()
+
+12. q = object.query.filter(db.or_(object.columName == Value, object.columName == Value)).all()
+
+13. q = object.query.order_by(object.columName).all()
+
+	q = object.query.filter(db.or_(object.columName == Value, object.columName == Value)).order_by(object.columName).all()
+
+14. q = object.query.limit(2).all()
+
+15. q = object.query.order_by(object.columName).limit(2).all()
+
+16. q = object.query.offset(1).all() (skip the first row...)
+
+17. object.query.filter(object.columName == Value).count()
+
+17. object.query.count()
+
+------- One to Many Relationships -------
+
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy(app)
+
+class Member(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	usernmae = db.Column(db.String(30), unique=True)
+	password = db.Column(db.String(30))
+	email = db.Column(db.String(50))
+	join_date = db.Column(db.DateTime)
+
+	orders = db.relationship('Order', backref='member', lazy='dynamic') --> 'backref' create a virtual column
+ 	courses = db.relationship('Course', secondary='user_courses', backref='member', lazy='dynamic')
+
+
+class Order(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	price = db.Column(db.Integer)
+	member_id = db.Column(db.Integer, db.ForeignKey('object.columnName'))
+
+------- One to Many Query -------
+
+anthony = Member.query.filter(Member.username == 'Anthony').first()
+anthony.id 
+3L
+
+order1 = Order(price=50, member_id=anthony.id)
+db.session.add(order1)
+db.session.commit()
+
+anthony.orders.all()
+
+order2 = Order(price=200, member=anthony)
+db.session.add(order2)
+db.session.commit()
+
+
+------- Many to Many Relationships -------
+
+class Course(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	name = db.Column(db.String(20))
+
+db.Table('user_courses',
+	db.Column('member_id', db.Integer, db.ForeignKey('member.id')),
+	db.Column('course_id', db.Integer, db.ForeignKey('course.id'))
+	)
+
+
+------- Many to Many Query -------
+
+course1 = Course(name='Course One')
+course2 = Course(name='Course Two')
+course3 = Course(name='Course Three')
+db.session.add(course1)
+db.session.add(course2)
+db.session.add(course3)
+db.session.commit()
+
+anthony = Member.query.filter(Member.username == 'Anthony').first()
+michelle = Member.query.filter(Member.username == 'Michelle').first()
+
+course1.member (return [])
+course1.append(anthony)
+course1.append(michelle)
+db.session.commit()
+
+anthony.courses.all()
