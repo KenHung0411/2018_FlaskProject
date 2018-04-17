@@ -116,8 +116,8 @@ anthony = Member.query.filter(Member.username == 'Anthony').first()
 michelle = Member.query.filter(Member.username == 'Michelle').first()
 
 course1.member (return [])
-course1.append(anthony)
-course1.append(michelle)
+course1.member.append(anthony)
+course1.member.append(michelle)
 db.session.commit()
 
 anthony.courses.all()
