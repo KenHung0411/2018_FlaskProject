@@ -1,36 +1,65 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, session, redirect, url_for
 
-from models import db
+#Comment below line if wants to do migrate
+#from models import Users
+
 from flask_sqlalchemy import SQLAlchemy
-from flask_script import Manager
-from flask_migrate import Migrate, MigrateCommand
+
+#mask the password by hashing data
+from werkzeug.security import generate_password_hash, check_password_hash
+
+import os
 
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #tracking every modification (turn off)
+app.config['SECRET_KEY']  = os.urandom(24)
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+@app.route('/login', methods=['POST','GET'])
+def login(): 
 
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
+	if request.method == "POST":
+		name = request.form['Name']
+		password = request.form['Password']
+		valid_password = Users.find_user_by_name(name).password
 
-@app.route('/login')
-def login():
+		if check_password_hash(valid_password, password):
+			session['username'] = request.form['Name']
+			return "<h1>Login!!</h1>"
+		else:
+			return "<h1>Login Failed!!</h1>"
+
+
 	return render_template('login.html')
 
-@app.route('/register')
+@app.route('/logout')
+def logout():
+	session.pop('user', None)
+	return redirect(url_for('home'))
+
+@app.route('/register', methods=['POST','GET'])
 def register():
+
+	if request.method == "POST":
+		name = request.form['Name']
+		password =  generate_password_hash(request.form['Password'], method='sha256')
+		add_user = Users(name=name, password=password).add_user()
+		return "User_added!"
+
 	return render_template('register.html')
 
-@app.route('/user')
-def user():
-	return render_template('user.html')
+@app.route('/users')
+def users():
+	return render_template('users.html')
 
 @app.route('/home')
 def home():
-	return render_template('home.html')
+	user = None
+	if 'username' in session:
+		user = session['username']
+	return render_template('home.html', user=user)
+
 
 @app.route('/question')
 def question():
@@ -49,16 +78,9 @@ def unanswered():
 	return render_template('unanswered.html')
 
 
-'''
-$ python manage.py db init
-$ python manage.py db migrate
-$ python manage.py db upgrade
-$ python manage.py db --help
-'''
 
 if __name__ == "__main__":
-	from models import db #must to import here 
-	manager.run()
+	from models import db, Users#must to import here 
 	db.init_app(app)
 	app.run(debug=True, port=8080)
 
