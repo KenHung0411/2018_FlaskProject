@@ -16,6 +16,17 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #tracking every modification (turn off)
 app.config['SECRET_KEY']  = os.urandom(24)
 
+def get_current_user():
+	user_result= None
+	if 'username' in session:
+		user = session['username']
+		#check if db have data 
+		user_result = Users.find_user_by_name(user)
+		return user_result
+	
+	return None
+	
+
 @app.route('/login', methods=['POST','GET'])
 def login(): 
 
@@ -26,20 +37,20 @@ def login():
 
 		if check_password_hash(valid_password, password):
 			session['username'] = request.form['Name']
-			return "<h1>Login!!</h1>"
+			return redirect(url_for('home'))
 		else:
 			return "<h1>Login Failed!!</h1>"
-
-
+	
 	return render_template('login.html')
 
 @app.route('/logout')
 def logout():
-	session.pop('user', None)
+	user = session.pop('username', None)
 	return redirect(url_for('home'))
 
 @app.route('/register', methods=['POST','GET'])
 def register():
+	user = get_current_user()
 
 	if request.method == "POST":
 		name = request.form['Name']
@@ -47,35 +58,56 @@ def register():
 		add_user = Users(name=name, password=password).add_user()
 		return "User_added!"
 
-	return render_template('register.html')
+	return render_template('register.html', user=user)
 
 @app.route('/users')
 def users():
-	return render_template('users.html')
+	user = get_current_user()
+	if not user:
+		return render_template('login.html',user=user)
+
+	return render_template('users.html',user=user)
 
 @app.route('/home')
 def home():
-	user = None
-	if 'username' in session:
-		user = session['username']
-	return render_template('home.html', user=user)
+	user = get_current_user()
+	if not user:
+		return render_template('login.html',user=user)
+
+	return render_template('home.html',user=user)
 
 
 @app.route('/question')
 def question():
-	return render_template('question.html')
+	user = get_current_user()
+	if not user:
+		return render_template('login.html',user=user)
+
+	return render_template('question.html',user=user)
 
 @app.route('/answer')
 def answer():
-	return render_template('answer.html')
+	user = get_current_user()
+	if not user:
+		return render_template('login.html',user=user)
+
+	return render_template('answer.html',user=user)
 
 @app.route('/ask')
 def ask():
-	return render_template('ask.html')
+	user = get_current_user()
+	if not user:
+		return render_template('login.html',user=user)
+
+	return render_template('ask.html',user=user)
 
 @app.route('/unanswered')
 def unanswered():
-	return render_template('unanswered.html')
+	user = get_current_user()
+	if not user:
+		return render_template('login.html',user=user)
+
+	return render_template('unanswered.html',user=user)
 
 
 

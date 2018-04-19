@@ -24,7 +24,8 @@ class Users(db.Model):
 	def __init__(self, name, password):
 		self.name = name
 		self.password = password
-
+		self.expert = False
+		self.admin = False
 
 	def add_user(self):
 		db.session.add(self)
