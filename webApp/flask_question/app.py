@@ -143,8 +143,20 @@ def unanswered():
 	if not user:
 		return render_template('login.html',user=user)
 
+	#question_list = Question.join_id_with_ask_user()
 	return render_template('unanswered.html',user=user)
 
+@app.route('/test')
+def test():
+	question_list = Question.join_id_with_ask_user()
+	for i in question_list:
+		print('Question is {}'.format(i[0].question))
+		if not i[0].answer:
+			print('This Question havnt have answer yet')
+		else:
+			print('The answer is {}'.format(i[0].answer)) 
+		print('Who ask this question: {}'.format(i[2]))
+	return 'test...'
 
 
 if __name__ == "__main__":

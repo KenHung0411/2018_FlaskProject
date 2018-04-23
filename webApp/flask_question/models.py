@@ -20,7 +20,7 @@ class Users(db.Model):
 	expert = db.Column(db.Boolean(),nullable=True)
 	admin = db.Column(db.Boolean(),nullable=True)
 
-	question = db.relationship("Question", primaryjoin="User._id==Question._id")	
+	#question = db.relationship("Question", primaryjoin="User._id==Question._id")	
 	
 	def __init__(self, name, password):
 		self.name = name
@@ -63,26 +63,37 @@ class Question(db.Model):
 	question = db.Column(db.Text(),nullable=True)
 	answer = db.Column(db.Text(),nullable=True)
 
-	#asked_by_id = db.column('Users', back_populates='question')
-	asked_by_id = db.Column(Integer, ForeignKey('user.id'))
+	asked_by_id = db.Column(db.Integer,nullable=True)
+	#asked_by_id = db.Column(Integer, ForeignKey('user.id'))
 	
-	answered_by_id = db.Column(db.Integer(),nullable=True)
+	answered_by_id = db.Column(db.Integer,nullable=True)
 	
 
 	def __init__(self, question, asked_by_id, answered_by_id):
 		self.question = question
 		self.answer = ""
 		self.asked_by_id = asked_by_id
-		self.answered_by_id = answered_by_id 
+		self.answered_by_id = answered_by_id
 
 	def add_question(self):
 		db.session.add(self)
 		db.session.commit()	
 
 	@classmethod
+	def fetch_question_by_id(cls, _id):
+		return cls.query.filter_by(_id = _id).first()
+
+	@classmethod
 	def fetch_all_questions(cls):
 		return cls.query.all()
 
+	@classmethod
+	def join_id_with_ask_user(cls):
+		return cls.query.join(Users, Question.asked_by_id ==Users._id).add_columns(Question.asked_by_id, Users.name).all()
+
+	@classmethod
+	def join_id_with_answer_user(cls):
+		return cls.query.join(Users, Question.answered_by_id ==Users._id).add_columns(Question.answered_by_id, Users.name).all()
 
 '''
 $ python manage.py db init
