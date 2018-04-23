@@ -62,9 +62,13 @@
 
             {% for question in all_questions%}
               <a href="#" class="list-group-item">
-                <h4 class="list-group-item-heading">Question {{question._id}} </h4>
-                <p class="list-group-item-text">Asked by: Herbert</p>
-                <p class="list-group-item-text">Answered by: Anthony</p>
+                <h4 class="list-group-item-heading">Question {{question[0].question}} </h4>
+                <p class="list-group-item-text">Asked by: {{question[2]}}</p>
+                {% if question[0].answer %}
+                <p class="list-group-item-text">Answered by: {{question[0].answered_by_id}}</p>
+                {% elif not question[0].answer %}
+                <p class="list-group-item-text">Answered by: Still Pending for answer... </p>
+                {% endif %}
               </a>              
             {% endfor %}
           </div>

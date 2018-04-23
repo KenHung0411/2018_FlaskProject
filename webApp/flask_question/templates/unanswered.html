@@ -58,7 +58,14 @@
       <div class="row">
         <div class="col-lg-12">
           <div class="list-group">
+          {% for unanswered in question_list %}
             <a href="#" class="list-group-item">
+              <h4 class="list-group-item-heading">Question : {{unanswered[0].question}} </h4>
+              <p class="list-group-item-text">Asked by: {{unanswered[2]}} </p>
+            </a>
+
+          {% endfor %}
+         <!--   <a href="#" class="list-group-item">
               <h4 class="list-group-item-heading">Question One</h4>
               <p class="list-group-item-text">Asked by: Herbert</p>
             </a>
@@ -69,7 +76,7 @@
             <a href="#" class="list-group-item">
               <h4 class="list-group-item-heading">Question Three</h4>
               <p class="list-group-item-text">Asked by: Herbert</p>
-            </a>
+            </a> -->
           </div>
         </div><!-- /.col-lg-12 -->
       </div>

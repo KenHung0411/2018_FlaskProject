@@ -92,8 +92,9 @@ class Question(db.Model):
 		return cls.query.join(Users, Question.asked_by_id ==Users._id).add_columns(Question.asked_by_id, Users.name).all()
 
 	@classmethod
-	def join_id_with_answer_user(cls):
-		return cls.query.join(Users, Question.answered_by_id ==Users._id).add_columns(Question.answered_by_id, Users.name).all()
+	def join_id_with_unanswer_question(cls):
+		return cls.query.join(Users, Question.asked_by_id ==Users._id).add_columns(Question.asked_by_id, Users.name).filter(Question.answer=="").all()
+
 
 '''
 $ python manage.py db init

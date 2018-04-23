@@ -96,7 +96,8 @@ def home():
 	if not user:
 		return render_template('login.html',user=user)
 
-	all_questions = Question.fetch_all_questions()
+	all_questions = Question.join_id_with_ask_user()
+	print(all_questions)
 	
 	return render_template('home.html',user=user, all_questions=all_questions)
 
@@ -143,8 +144,10 @@ def unanswered():
 	if not user:
 		return render_template('login.html',user=user)
 
-	#question_list = Question.join_id_with_ask_user()
-	return render_template('unanswered.html',user=user)
+	question_list = Question.join_id_with_unanswer_question()
+	print(question_list)
+
+	return render_template('unanswered.html',user=user, question_list=question_list)
 
 @app.route('/test')
 def test():
