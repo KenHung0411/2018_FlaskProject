@@ -41,6 +41,9 @@ class Users(db.Model):
 	def find_user_by_name(cls, name):
 		return cls.query.filter_by(name=name).first()
 
+	@classmethod
+	def find_user_by_id(cls, id):
+		return cls.query.filter_by(_id=id).first()
 
 	@classmethod
 	def fetch_all_users(cls):
@@ -80,8 +83,8 @@ class Question(db.Model):
 		db.session.commit()	
 
 	@classmethod
-	def fetch_question_by_id(cls, _id):
-		return cls.query.filter_by(_id = _id).first()
+	def fetch_question_by_id(cls,id):
+		return cls.query.filter_by(_id = id).first()
 
 	@classmethod
 	def fetch_all_questions(cls):
@@ -89,7 +92,7 @@ class Question(db.Model):
 
 	@classmethod
 	def join_id_with_ask_user(cls):
-		return cls.query.join(Users, Question.asked_by_id ==Users._id).add_columns(Question.asked_by_id, Users.name).all()
+		return cls.query.join(Users, Question.asked_by_id ==Users._id).add_columns(Question.asked_by_id, Question.answered_by_id ,Users.name).all()
 
 	@classmethod
 	def join_id_with_unanswer_question(cls):

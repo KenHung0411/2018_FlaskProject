@@ -25,6 +25,8 @@ def get_current_user():
 		return user_result
 	
 	return None
+
+
 	
 
 @app.route('/login', methods=['POST','GET'])
@@ -97,26 +99,40 @@ def home():
 		return render_template('login.html',user=user)
 
 	all_questions = Question.join_id_with_ask_user()
-	print(all_questions)
+	ask_by =  [ Users.find_user_by_id(i[2]).name for i in all_questions ]
+	all_question_full = list(zip(ask_by, all_questions))
+	print(all_question_full)
 	
-	return render_template('home.html',user=user, all_questions=all_questions)
+	return render_template('home.html',user=user, all_questions=all_question_full)
 
 
-@app.route('/question')
-def question():
+@app.route('/question/<string:question_id>')
+def question(question_id):
+	user = get_current_user()
+
+	if not user:
+		return render_template('login.html',user=user)
+	question = Question.fetch_question_by_id(question_id)
+	asked_by, answered_by = Users.find_user_by_id(question.asked_by_id).name ,Users.find_user_by_id(question.answered_by_id).name
+
+	return render_template('question.html',user=user, question=question, asked_by= asked_by, answered_by= answered_by)
+
+@app.route('/answer/<question_id>', methods=['POST', 'GET'])
+def answer(question_id):
 	user = get_current_user()
 	if not user:
 		return render_template('login.html',user=user)
 
-	return render_template('question.html',user=user)
+	fetch_question = Question.fetch_question_by_id(question_id)
 
-@app.route('/answer')
-def answer():
-	user = get_current_user()
-	if not user:
-		return render_template('login.html',user=user)
+	if request.method == "POST":
+		answer = request.form['answer']
+		fetch_question.answer = answer
+		fetch_question.add_question()
+		return redirect(url_for('home'))
 
-	return render_template('answer.html',user=user)
+
+	return render_template('answer.html',user=user, question=fetch_question )
 
 @app.route('/ask', methods=['POST','GET'])
 def ask():
