@@ -1,0 +1,11 @@
+To convert to Postgres:
+
+Remove return values for db.execute
+
+Use tuples instead of lists for parameters. Remember to use a comma after the last item so Pytho knows it's a tuple.
+
+Use %s instead of ?.
+
+Call fetchall and fetchone on db.
+
+Remove commit statements.

@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 
 #Comment below line if wants to do migrate
 #from models import Users
@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 #mask the password by hashing data
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from form import Login_form
 
 import os
 
@@ -31,11 +33,17 @@ def get_current_user():
 
 @app.route('/login', methods=['POST','GET'])
 def login(): 
-	user = get_current_user()
 
-	if request.method == "POST":
-		name = request.form['Name']
-		password = request.form['Password']
+	form = Login_form(request.form, csrf_enable=False)
+
+
+
+	#if request.method == "POST":
+	if form.validate_on_submit():
+		
+		username = request.form.get('username')
+		password = request.form.get('password')
+		'''
 		valid_password = Users.find_user_by_name(name)
 		if valid_password:
 			if check_password_hash(valid_password.password, password):
@@ -45,8 +53,18 @@ def login():
 				return "<h1>Wrong Password!!</h1>"
 		else:
 			return "<h1>User not Existed!!</h1>"
+		'''
+		flash('login successed', 'success')
+		
+		return redirect(url_for('login'))
 	
-	return render_template('login.html', user=user)
+	#if form.errors:
+	#	print(form.errors)
+	#	return redirect(url_for('login'))
+
+	return render_template('login.html' ,form=form)
+
+
 
 @app.route('/logout')
 def logout():
@@ -103,7 +121,7 @@ def home():
 	all_question_full = list(zip(ask_by, all_questions))
 	print(all_question_full)
 	
-	return render_template('home.html',user=user, all_questions=all_question_full)
+	return render_template('home.html', all_questions=all_question_full)
 
 
 @app.route('/question/<string:question_id>')

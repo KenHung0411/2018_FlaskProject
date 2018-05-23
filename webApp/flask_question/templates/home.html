@@ -26,26 +26,22 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li class="active"><a href="{{url_for('home')}}">Home</a></li>
-            {% if not user.name %}
+          
             <li><a href="{{url_for('login')}}">Login</a></li>
             <li><a href="{{url_for('register')}}">Register</a></li>
-            {% endif %}
+       
 
-            {% if user.expert == False %}
+        
             <li><a href="{{url_for('ask')}}">Ask Question</a></li>
-            {% endif %}
-
-            {% if user.expert == True or user.admin == True %}
+       
             <li><a href="{{url_for('unanswered')}}">Answer Questions</a></li>
-            {% endif %}
+      
 
-            {% if user.admin == True %}
             <li><a href="{{url_for('users')}}">User Setup</a></li>
-            {% endif %}
+   
 
-            {% if user.name %}
             <li><a href=" {{url_for('logout')}} ">Logout</a></li>
-            {% endif %}
+     
           </ul>
         </div><!--/.nav-collapse -->
       </div>
