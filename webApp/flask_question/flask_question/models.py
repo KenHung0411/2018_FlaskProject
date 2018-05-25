@@ -92,6 +92,26 @@ class Question(db.Model):
 		return cls.query.join(Users, Question.asked_by_id ==Users._id).add_columns(Question.asked_by_id, Users.name).filter(Question.answer=="").all()
 
 
+
+class Account(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.String(20), unique=True, nullable=False)
+	email = db.Column(db.String(120), unique=True, nullable=False)
+	image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
+	password = db.Column(db.String(60), nullable=False)
+	posts = db.relationship('Post', backref='post', lazy=True)
+
+
+class Post(db.Model):
+
+	id = db.Column(db.Integer, primary_key=True)
+	title = db.Column(db.String(100), nullable=False)
+	content = db.Column(db.Text(), nullable=False)
+	user_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+	account = db.relationship('Account', backref='account', lazy=True)
+
+
 '''
 $ python manage.py db init
 $ python manage.py db migrate

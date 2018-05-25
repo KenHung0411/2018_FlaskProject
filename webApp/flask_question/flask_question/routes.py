@@ -24,7 +24,7 @@ def get_current_user():
 
 
 	
-@app.route('/')
+@app.route('/',methods=['POST','GET'])
 @app.route('/login', methods=['POST','GET'])
 def login(): 
 
@@ -50,7 +50,7 @@ def login():
 		'''
 		flash('login successed', 'success')
 		
-		return redirect(url_for('login'))
+		return redirect(url_for('home'))
 	
 	#if form.errors:
 	#	print(form.errors)
@@ -106,9 +106,9 @@ def users():
 
 @app.route('/home')
 def home():
-	user = get_current_user()
-	if not user:
-		return render_template('login.html',user=user)
+	#user = get_current_user()
+	#if not user:
+	#	return render_template('login.html',user=user)
 
 	all_questions = Question.join_id_with_ask_user()
 	ask_by =  [ Users.find_user_by_id(i[2]).name for i in all_questions ]
@@ -184,6 +184,17 @@ def test():
 	return 'test...'
 
 
+#focus on how to get pr 404
+@app.route("/post/<int:post_id>")
+def post(post_id):
+	post = Post.query.get_or_404(post_id)
+	return render_template('post.html', title=post.title, post=post)
+
+#How you gonna to reference the web page by the id number
+#url_for('post',post_id = post.id)
+
+
+
 # define method without the route()
 def request_func():
 	return '<h1>test...</h1>'
@@ -193,6 +204,24 @@ app.add_url_rule('/a-get-request', view_func=request_func)
 #Routing through class view 
 
 app.add_url_rule('/b-get-request', view_func=get_request.as_view('b_get_request'))
+
+
+#How to combine redis
+from flask_question import redis 
+
+@app.route('/product/<id>')
+def product(id):
+	product = Product.query.get_or_404(id)
+	product_key = 'product-{}'.format(product.id)
+	redis.set(product_key, product.name)
+	redis.expire(product_key, 600)
+	return 'Product - {}, ${}'.format(product.name, product.price)
+
+@app.route('/recent-products')
+def recent_products():
+	keys_alive = redis.keys('product-*')
+	products = [redis.get(k) for k in keys_alive]
+	return jsonify({'products': products})
 
 
 ALLOWED_LANGUAGES = {
