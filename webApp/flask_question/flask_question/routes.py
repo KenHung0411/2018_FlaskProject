@@ -1,22 +1,16 @@
-from flask import Flask, render_template, request, session, redirect, url_for, flash
+from flask import render_template, request, session, redirect, url_for, flash
 
-#Comment below line if wants to do migrate
-#from models import Users
-
-from flask_sqlalchemy import SQLAlchemy
-
-#mask the password by hashing data
+from flask_question import app
+from flask_question.form import Login_form
+from flask_question.models import db, Users, Question
 from werkzeug.security import generate_password_hash, check_password_hash
-
-from form import Login_form
-
+#class view implement
+from flask_question.views import get_request
 import os
 
-app = Flask(__name__)
+from flask.ext.babel import Babel
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #tracking every modification (turn off)
-app.config['SECRET_KEY']  = os.urandom(24)
+babel = Babel(app)
 
 def get_current_user():
 	user_result= None
@@ -30,7 +24,7 @@ def get_current_user():
 
 
 	
-
+@app.route('/')
 @app.route('/login', methods=['POST','GET'])
 def login(): 
 
@@ -186,18 +180,26 @@ def unanswered():
 @app.route('/test')
 def test():
 	question_list = Question.join_id_with_ask_user()
-	for i in question_list:
-		print('Question is {}'.format(i[0].question))
-		if not i[0].answer:
-			print('This Question havnt have answer yet')
-		else:
-			print('The answer is {}'.format(i[0].answer)) 
-		print('Who ask this question: {}'.format(i[2]))
+
 	return 'test...'
 
 
-if __name__ == "__main__":
-	from models import db, Users, Question#must to import here 
-	db.init_app(app)
-	app.run(debug=True, port=8080)
+# define method without the route()
+def request_func():
+	return '<h1>test...</h1>'
 
+app.add_url_rule('/a-get-request', view_func=request_func)
+
+#Routing through class view 
+
+app.add_url_rule('/b-get-request', view_func=get_request.as_view('b_get_request'))
+
+
+ALLOWED_LANGUAGES = {
+'en': 'English',
+'fr': 'French',
+}
+
+@babel.localeselector
+def get_locale():
+	return request.accept_languages.best_match(ALLOWED_LANGUAGES.keys())

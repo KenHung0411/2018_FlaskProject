@@ -1,16 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
-
-from flask_sqlalchemy import SQLAlchemy
 from flask_script import Manager
 from flask_migrate import Migrate, MigrateCommand
 
-from app import app
+from flask_question import db
 
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
-manager = Manager(app)
-manager.add_command('db', MigrateCommand)
 
 class Users(db.Model):
 
@@ -105,7 +98,3 @@ $ python manage.py db migrate
 $ python manage.py db upgrade
 $ python manage.py db --help
 '''
-
-if __name__ == "__main__":
-	manager.run()
-
